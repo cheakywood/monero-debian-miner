@@ -121,55 +121,127 @@ make -j$(nproc)
 ```
 
 ### 2. Configure XMRig
-1. Create a config file:
-   ```sh
-   nano config.json
-   ```
-2. Add the following configuration:
-   ```json
-   {
-       "autosave": true,
-       "cpu": true,
-       "donate-level": 1,
-       "randomx": { "1gb-pages": true },
-       "pools": [
-           {
-               "url": "pool.minexmr.com:443",
-               "user": "YOUR_WALLET_ADDRESS",
-               "pass": "x",
-               "keepalive": true,
-               "tls": true
-           }
-       ]
-   }
-   ```
-   ✅ Replace **YOUR_WALLET_ADDRESS** with your Monero wallet address.
+#### Step 1: Obtain Your Monero Wallet Address
+Ensure you have a Monero wallet. If not, create one using the one [Monero Wallet](https://www.getmonero.org/downloads/).
+
+#### Step 2: Select a Mining Pool and Configure XMRig
+Find a mining pool: [Mining Pool Stats](https://miningpoolstats.stream/monero)  
+Example: [hashvault.pro](https://monero.hashvault.pro/en/getting-started)
+
+Follow the instructions from the pool to generate a mining configuration and update your `config.json`.
+
+#### Create `config.json`
+```sh
+cd ~/xmrig/
+nano config.json
+```
+
+Example `config.json`:
+```json
+{
+  "api": {
+    "id": null,
+    "worker-id": null
+  },
+  "http": {
+    "enabled": false,
+    "host": "127.0.0.1",
+    "port": 0,
+    "access-token": null,
+    "restricted": true
+  },
+  "autosave": true,
+  "version": 1,
+  "background": false,
+  "colors": true,
+  "randomx": {
+    "init": -1,
+    "numa": true
+  },
+  "cpu": {
+    "enabled": true,
+    "huge-pages": true,
+    "hw-aes": null,
+    "priority": null,
+    "memory-pool": false,
+    "max-threads-hint": 100,
+    "asm": true,
+    "argon2-impl": null,
+    "cn/0": false,
+    "cn-lite/0": false
+  },
+  "opencl": {
+    "enabled": false,
+    "cache": true,
+    "loader": null,
+    "platform": "AMD",
+    "cn/0": false,
+    "cn-lite/0": false
+  },
+  "cuda": {
+    "enabled": false,
+    "loader": null,
+    "nvml": true,
+    "cn/0": false,
+    "cn-lite/0": false
+  },
+  "donate-level": 1,
+  "donate-over-proxy": 1,
+  "log-file": null,
+  "pools": [
+    {
+      "algo": null,
+      "coin": null,
+      "url": "pool.hashvault.pro:443",
+      "user": <WALLET_ADDRESS>,
+      "pass": <WORKER>,
+      "rig-id": null,
+      "nicehash": false,
+      "keepalive": false,
+      "enabled": true,
+      "tls": true,
+      "tls-fingerprint": "420c7850e09b7c0bdcf748a7da9eb3647daf8515718f36d9ccfdd6b9ff834b14",
+      "daemon": false,
+      "self-select": null
+    }
+  ],
+  "print-time": 60,
+  "health-print-time": 60,
+  "retries": 5,
+  "retry-pause": 5,
+  "syslog": false,
+  "user-agent": null,
+  "watch": true
+}
+```
+Replace `<WALLET_ADDRESS>` with your actual wallet address and `<WORKER>` with your worker name.
 
 ### 3. Start Mining
+#### Use Screen (Recommended for Remote Mining)
+Install screen:
 ```sh
-./xmrig
+sudo apt update && sudo apt install screen -y
 ```
-✅ You should see hash rate, accepted shares, and pool connection status.
+Start a screen session:
+```sh
+screen -S mining
+```
+Run XMRig:
+```sh
+cd ~/xmrig/build
+./xmrig --config ../config.json
+```
+Detach the session:
+```sh
+CTRL + A, then D
+```
+Reopen the session:
+```sh
+screen -r mining
+```
+XMRig will display stats about your mining performance, including hash rates and accepted shares.
 
-### 4. Optimize Performance & Power Usage
-- Limit CPU threads:
-  ```sh
-  ./xmrig --cpu-max-threads-hint=50
-  ```
-- Run XMRig in the background:
-  ```sh
-  nohup ./xmrig > xmrig.log 2>&1 &
-  ```
-- Monitor system usage:
-  ```sh
-  htop
-  ```
+Check your mining pool's dashboard to track earnings via https://monero.hashvault.pro/en/dashboard
 
-## Final Notes
-✅ Your laptop is now optimized for low-power **Monero mining**.
-✅ Monitor your earnings on the mining pool's website.
-✅ Keep temperatures low with proper cooling.
-✅ Automate mining on startup for continuous operation.
 
-💰 **Happy Mining!**
 
