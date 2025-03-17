@@ -18,77 +18,6 @@ This guide explains how to mine Monero ($XMR) on an **Asus X93S** laptop while o
 | Other Components    | ~10-15W             |
 | **Total**           | **70–90W**          |
 
-## Reducing Power Consumption
-To minimize electricity costs, disable or remove unnecessary components.
-
-### 1. Disable the Discrete GPU (GT 540M)
-#### Method 1: Using Nvidia Prime
-1. Check for Nvidia drivers:
-   ```sh
-   nvidia-smi
-   ```
-2. Install Nvidia Prime if not installed:
-   ```sh
-   sudo apt update
-   sudo apt install nvidia-driver nvidia-prime
-   ```
-3. Switch to Intel integrated graphics:
-   ```sh
-   sudo prime-select intel
-   sudo reboot
-   ```
-
-#### Method 2: Using bbswitch
-1. Install bbswitch:
-   ```sh
-   sudo apt update
-   sudo apt install bbswitch-dkms
-   ```
-2. Disable the discrete GPU:
-   ```sh
-   sudo tee /proc/acpi/bbswitch <<< OFF
-   ```
-3. Verify GPU is off:
-   ```sh
-   cat /proc/acpi/bbswitch
-   ```
-4. Reboot to apply changes:
-   ```sh
-   sudo reboot
-   ```
-✅ **Power Savings:** Up to **35W**
-
-### 2. Optimize Hardware for Efficiency
-- **Remove or replace HDD** (saves **6–8W**): Use a USB flash drive or SSD.
-- **Remove the optical drive** (saves **5W**).
-- **Reduce RAM** (saves **3–5W**, but may impact performance).
-- **Dim or disable the screen**:
-  ```sh
-  xrandr --output LVDS-1 --brightness 0.1
-  ```
-  ✅ Saves **5–10W**.
-- **Remove the battery** if running on AC power (saves **2–5W**).
-
-### 3. Optimize Power Settings
-- **Lower CPU frequency:**
-  ```sh
-  sudo apt install cpufrequtils
-  sudo cpufreq-set -g powersave
-  ```
-  ✅ Saves **10–15W**.
-
-### Final Power Savings Estimation
-| Component          | Default Power (W) | Optimized Power (W) | Savings (W) |
-|-------------------|-----------------|-----------------|------------|
-| CPU (Tuned)      | 35W             | 20W             | 15W        |
-| GPU (Disabled)   | 35W             | 0W              | 35W        |
-| HDD (Removed)    | 8W              | 0W              | 8W         |
-| DVD Drive        | 5W              | 0W              | 5W         |
-| RAM (Reduced)    | 5W              | 2W              | 3W         |
-| Screen (Dimmed)  | 10W             | 2W              | 8W         |
-| Battery Removed  | 5W              | 0W              | 5W         |
-| **Total Savings** | **70W**         | **25W**         | **45W**    |
-
 ## Installing Debian for Mining
 ### 1. Install Debian (Minimal Setup)
 1. Download **Debian Net Install**.
@@ -111,12 +40,71 @@ To minimize electricity costs, disable or remove unnecessary components.
    ```
 2. Find your IP:
    ```sh
-   ip a
+   hostname
    ```
 3. Connect remotely:
    ```sh
-   ssh username@192.168.1.100
+   ssh username@ip_address
    ```
+
+## Reducing Power Consumption
+To minimize electricity costs, disable or remove unnecessary components.
+
+### 1. Disable the Discrete GPU (GT 540M) by blacklisting Nvidia Kernel Modules
+You can blacklist the Nvidia kernel modules to prevent the GPU from being loaded at boot.
+
+#### Step 1: Edit the Blacklist Configuration
+Open the blacklist configuration file in a text editor:
+```sh
+sudo nano /etc/modprobe.d/blacklist.conf
+```
+
+#### Step 2: Add the Following Lines
+Append these lines at the end of the file:
+```sh
+blacklist nvidia
+blacklist nouveau
+```
+
+#### Step 3: Update Initramfs
+After modifying the blacklist file, update the **initramfs**:
+```sh
+sudo update-initramfs -u
+```
+
+#### Step 4: Reboot the System
+Reboot for the changes to take effect:
+```sh
+sudo reboot
+```
+✅ This will prevent the Nvidia drivers from loading, effectively disabling the discrete GPU.
+
+
+✅ **Power Savings:** Up to **35W**
+
+### 2. Optimize Hardware for Efficiency
+- **Remove or replace HDD** (saves **6–8W**): Use a USB flash drive or SSD.
+- **Remove the optical drive** (saves **5W**).
+- **Reduce RAM** (saves **3–5W**, but may impact performance).
+- **Disable the screen**:
+  ```
+   sudo sh -c "echo 1 > /sys/class/graphics/fb0/blank"
+  ```
+
+  ✅ Saves **5–10W**.
+- **Remove the battery** if running on AC power (saves **2–5W**).
+
+### Final Power Savings Estimation
+| Component          | Default Power (W) | Optimized Power (W) | Savings (W) |
+|-------------------|-----------------|-----------------|------------|
+| CPU (Untouched)   | 35W             | 35W             | 0W        |
+| GPU (Disabled)   | 35W             | 0W              | 35W        |
+| HDD (Removed)    | 8W              | 0W              | 8W         |
+| DVD Drive (Removed) | 5W              | 0W              | 5W         |
+| RAM (Untouched)    | 5W              | 5W              | 0W         |
+| Screen (Disabled)  | 10W             | 0W              | 10W         |
+| Battery Removed  | 5W              | 0W              | 5W         |
+| **Total Savings** | **100W**         | **45W**         | **65W**    |
 
 ## Mining Monero with XMRig
 ### 1. Install XMRig
