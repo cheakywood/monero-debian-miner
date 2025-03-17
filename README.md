@@ -94,7 +94,7 @@ sudo reboot
   ✅ Saves **5–10W**.
 - **Remove the battery** if running on AC power (saves **2–5W**).
 
-### Final Power Savings Estimation
+## Final Power Savings Estimation
 | Component          | Default Power (W) | Optimized Power (W) | Savings (W) |
 |-------------------|-----------------|-----------------|------------|
 | CPU (Untouched)   | 35W             | 35W             | 0W        |
@@ -105,6 +105,36 @@ sudo reboot
 | Screen (Disabled)  | 10W             | 0W              | 10W         |
 | Battery Removed  | 5W              | 0W              | 5W         |
 | **Total Savings** | **100W**         | **45W**         | **65W**    |
+
+## Prevent Laptop Shutdown or Sleep When Closing Lid (Debian, No GUI)
+
+If you want to prevent your Debian laptop (without a GUI) from shutting down or sleeping when you close the lid, follow these steps:
+
+## 1. Edit the `logind.conf` file
+Open a terminal and edit the systemd logind configuration file:
+
+```bash
+sudo nano /etc/systemd/logind.conf
+```
+
+## 2. Modify the Lid Switch Behavior
+Find these lines and modify them (or add them if they don’t exist):
+
+```ini
+HandleLidSwitch=ignore
+HandleLidSwitchDocked=ignore
+HandleLidSwitchExternalPower=ignore
+```
+
+## 3. Save and Exit
+- Press `CTRL + X`, then `Y`, and hit `Enter` to save the changes.
+
+## 4. Restart the `systemd-logind` Service
+Apply the changes by restarting the service:
+
+```bash
+sudo systemctl restart systemd-logind
+```
 
 ## Mining Monero with XMRig
 ### 1. Install XMRig
